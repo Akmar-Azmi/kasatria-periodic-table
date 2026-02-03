@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>3D Periodic Table</title>
+
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <!-- LOGIN SCREEN (IMAGE A) -->
+    <div id="login-screen">
+        <h1>Sign In With Google</h1>
+        <div id="google-btn"></div>
+    </div>
+
+    <!-- 3D CONTAINER -->
+    <div id="container" style="display:none;"></div>
+
+    <!-- BUTTONS -->
+    <div id="ui-bar" style="display: none;">
+        <!-- LEFT : Buttons -->
+        <div id="menu">
+            <button id="table">TABLE</button>
+            <button id="sphere">SPHERE</button>
+            <button id="helix">HELIX</button>
+            <button id="grid">GRID</button>
+        </div>
+
+        <!-- RIGHT : Net Worth Indicator -->
+        <div id="legend">
+            <span class="label">Net Worth:</span>
+            <span class="value">$100K</span>
+
+            <div class="gradient-rect"></div>
+
+            <span class="value">&ge; $200K</span>
+        </div>
+    </div>
+
+
+    </div>
+
+    <!-- THREE.JS -->
+    <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/renderers/CSS3DRenderer.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/controls/TrackballControls.js"></script>
+
+    <!-- ANIMATION -->
+    <script src="https://unpkg.com/@tweenjs/tween.js@18.6.4/dist/tween.umd.js"></script>
+
+    <!-- APP -->
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
