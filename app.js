@@ -1,6 +1,4 @@
-/*********************************
- * GOOGLE LOGIN
- *********************************/
+//Google login
 google.accounts.id.initialize({
   client_id:
     "513987483285-39d6qma9ollbkb9b3rukvdvc50hu993u.apps.googleusercontent.com",
@@ -20,9 +18,14 @@ function onLoginSuccess() {
   loadSheetData();
 }
 
-/*********************************
- * LOAD DATA FROM GOOGLE SHEET (CSV)
- *********************************/
+const PYRAMID_ROTATION = {
+  x: -0.35,
+  y: Math.PI / 4,
+  z: 0
+};
+
+
+//data from Gsheet
 const CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTRwkOJehAAJnhCm_Vfq8owyRd1WsATIKYrzEpiGerXddC0-KGCDZpdK_oTAC0RLEPw9DiUmlTQTVRY/pub?output=csv";
 
@@ -58,9 +61,7 @@ function parseNetWorth(value) {
   return Number(value.replace(/\$/g, "").replace(/,/g, ""));
 }
 
-/*********************************
- * THREE.JS GLOBALS
- *********************************/
+//three.js global
 let camera, scene, renderer, controls;
 const objects = [];
 const targets = {
@@ -71,9 +72,7 @@ const targets = {
   pyramid: [],
 };
 
-/*********************************
- * INIT 3D SCENE
- *********************************/
+//init 3D
 function init3D(data) {
   camera = new THREE.PerspectiveCamera(
     40,
@@ -106,18 +105,14 @@ function init3D(data) {
   animate();
 }
 
-/*********************************
- * COLOR LOGIC follow Net Worth (IMAGE B)
- *********************************/
+//Net worth (color)
 function getColor(networth) {
   if (networth < 100000) return "#EF3022"; // Red (Low)
   if (networth < 200000) return "#E8BB36"; // Orange (Medium)
   return "#3A9F48"; // Green (High)
 }
 
-/*********************************
- * CREATE TILES
- *********************************/
+//Tiles
 function createObjects(data) {
   data.forEach((person, i) => {
     const element = document.createElement("div");
@@ -150,9 +145,7 @@ function createObjects(data) {
   });
 }
 
-/*********************************
- * LAYOUTS
- *********************************/
+//Layouts
 function createLayouts() {
   targets.table = [];
   targets.sphere = [];
@@ -204,17 +197,23 @@ function createSphere() {
   });
 }
 
-/* DOUBLE HELIX (REQUIRED) */
+/* DOUBLE HELIX */
 function createHelix() {
-  const radius = 900;
-  const verticalSpacing = 35;
-  const turns = 3; // how many full rotations
+  targets.helix = [];
+
+  const radius = 800;
+  const verticalSpacing = 25;
+  const turns = 4;
 
   objects.forEach((obj, i) => {
     const target = new THREE.Object3D();
 
-    const angle = (i / objects.length) * Math.PI * 2 * turns;
-    const y = -(i * verticalSpacing) + 800;
+    const strand = i % 2; // 0 or 1
+    const angle =
+      (Math.floor(i / 2) / objects.length) * Math.PI * 2 * turns
+      + (strand * Math.PI);
+
+    const y = -(Math.floor(i / 2) * verticalSpacing) + 800;
 
     target.position.set(
       Math.cos(angle) * radius,
@@ -225,6 +224,7 @@ function createHelix() {
     targets.helix.push(target);
   });
 }
+
 
 /* GRID 5 x 4 x 10 (IMAGE C) */
 function createGrid() {
@@ -239,14 +239,91 @@ function createGrid() {
   });
 }
 
-/*********************************
- * TRANSFORM + ANIMATION
- *********************************/
+function createPyramid() {
+  targets.pyramid = [];
+
+  const size = 1000;
+  const geometry = new THREE.TetrahedronGeometry(size);
+  const nonIndexed = geometry.toNonIndexed();
+  const positions = nonIndexed.attributes.position.array;
+
+  const faces = [];
+  for (let i = 0; i < positions.length; i += 9) {
+    faces.push([
+      new THREE.Vector3(positions[i], positions[i + 1], positions[i + 2]),
+      new THREE.Vector3(positions[i + 3], positions[i + 4], positions[i + 5]),
+      new THREE.Vector3(positions[i + 6], positions[i + 7], positions[i + 8])
+    ]);
+  }
+
+  const baseCount = Math.floor(objects.length / 4);
+  const remainder = objects.length % 4;
+
+  let globalIndex = 0;
+
+  faces.forEach((face, faceIndex) => {
+    if (globalIndex >= objects.length) return;
+
+    const objectsPerFace = baseCount + (faceIndex < remainder ? 1 : 0);
+    const [v0, v1, v2] = face;
+
+    const edge1 = new THREE.Vector3().subVectors(v1, v0);
+    const edge2 = new THREE.Vector3().subVectors(v2, v0);
+    const normal = new THREE.Vector3().crossVectors(edge1, edge2).normalize();
+
+    const faceCenter = new THREE.Vector3().add(v0).add(v1).add(v2).divideScalar(3);
+    if (faceCenter.dot(normal) < 0) normal.negate();
+
+    // Compute exact rows needed
+    let rows = 1;
+    while ((rows * (rows + 1)) / 2 < objectsPerFace) rows++;
+
+    let placed = 0;
+
+    for (let r = 0; r < rows; r++) {
+      const t = rows === 1 ? 0 : r / (rows - 1);
+      const cols = rows - r;
+
+      for (let c = 0; c < cols; c++) {
+        if (placed >= objectsPerFace || globalIndex >= objects.length) break;
+
+        const s = cols === 1 ? 0.5 : c / (cols - 1);
+
+        const u = s * (1 - t);
+        const v = t;
+        const w = 1 - u - v;
+
+        const position = new THREE.Vector3()
+          .addScaledVector(v0, w)
+          .addScaledVector(v1, u)
+          .addScaledVector(v2, v);
+
+        position.addScaledVector(normal, 40);
+
+        const target = new THREE.Object3D();
+        target.position.copy(position);
+
+        const quat = new THREE.Quaternion();
+        quat.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
+        target.quaternion.copy(quat);
+
+        targets.pyramid.push(target);
+
+        globalIndex++;
+        placed++;
+      }
+    }
+  }); 
+} 
+
+//transform and animation
 function transform(targetArray, duration = 2000) {
   TWEEN.removeAll();
 
   objects.forEach((obj, i) => {
     const target = targetArray[i];
+
+    // Position Tween 
     new TWEEN.Tween(obj.position)
       .to(
         {
@@ -254,12 +331,25 @@ function transform(targetArray, duration = 2000) {
           y: target.position.y,
           z: target.position.z,
         },
-        Math.random() * duration + duration,
+        Math.random() * duration + duration
       )
       .easing(TWEEN.Easing.Exponential.InOut)
       .start();
+
+    //  Rotation
+    const startQuat = obj.quaternion.clone();
+    const endQuat = target.quaternion.clone();
+
+    new TWEEN.Tween({ t: 0 })
+      .to({ t: 1 }, duration)
+      .easing(TWEEN.Easing.Exponential.InOut)
+      .onUpdate(function (state) {
+        THREE.Quaternion.slerp(startQuat, endQuat, obj.quaternion, state.t);
+      })
+      .start();
   });
 }
+
 
 function animate() {
   requestAnimationFrame(animate);
@@ -267,32 +357,3 @@ function animate() {
   controls.update();
   renderer.render(scene, camera);
 }
-
-// Pyramid (Tetrahedron)
-function createPyramid() {
-  targets.pyramid = []; 
-  const size = 900;
-
-  const vertices = [
-    new THREE.Vector3(0, size, 0),                 // top
-    new THREE.Vector3(-size, -size, size),         // base 1
-    new THREE.Vector3(size, -size, size),          // base 2
-    new THREE.Vector3(0, -size, -size)             // base 3
-  ];
-
-  objects.forEach((obj, i) => {
-    const target = new THREE.Object3D();
-    const v = vertices[i % 4];
-
-    // spread slightly around each vertex
-    target.position.set(
-      v.x + (Math.random() - 0.5) * 200,
-      v.y + (Math.random() - 0.5) * 200,
-      v.z + (Math.random() - 0.5) * 200
-    );
-
-    targets.pyramid.push(target);
-  });
-}
-
-
