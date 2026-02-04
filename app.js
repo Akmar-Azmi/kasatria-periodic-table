@@ -68,6 +68,7 @@ const targets = {
   sphere: [],
   helix: [],
   grid: [],
+  pyramid: [],
 };
 
 /*********************************
@@ -100,6 +101,7 @@ function init3D(data) {
   document.getElementById("sphere").onclick = () => transform(targets.sphere);
   document.getElementById("helix").onclick = () => transform(targets.helix);
   document.getElementById("grid").onclick = () => transform(targets.grid);
+  document.getElementById("pyramid").onclick = () =>transform(targets.pyramid);
 
   animate();
 }
@@ -156,11 +158,13 @@ function createLayouts() {
   targets.sphere = [];
   targets.helix = [];
   targets.grid = [];
+  targets.pyramid = [];
 
   createTable();
   createSphere();
   createHelix();
   createGrid();
+  createPyramid();
 }
 
 window.addEventListener("resize", () => {
@@ -202,18 +206,20 @@ function createSphere() {
 
 /* DOUBLE HELIX (REQUIRED) */
 function createHelix() {
-  const radius = 800;
-  const separation = 300;
+  const radius = 900;
+  const verticalSpacing = 35;
+  const turns = 3; // how many full rotations
 
   objects.forEach((obj, i) => {
     const target = new THREE.Object3D();
-    const angle = i * 0.35;
-    const strand = i % 2 === 0 ? 1 : -1;
+
+    const angle = (i / objects.length) * Math.PI * 2 * turns;
+    const y = -(i * verticalSpacing) + 800;
 
     target.position.set(
-      Math.cos(angle) * radius + strand * separation,
-      -(i * 20) + 800,
-      Math.sin(angle) * radius,
+      Math.cos(angle) * radius,
+      y,
+      Math.sin(angle) * radius
     );
 
     targets.helix.push(target);
@@ -261,3 +267,32 @@ function animate() {
   controls.update();
   renderer.render(scene, camera);
 }
+
+// Pyramid (Tetrahedron)
+function createPyramid() {
+  targets.pyramid = []; 
+  const size = 900;
+
+  const vertices = [
+    new THREE.Vector3(0, size, 0),                 // top
+    new THREE.Vector3(-size, -size, size),         // base 1
+    new THREE.Vector3(size, -size, size),          // base 2
+    new THREE.Vector3(0, -size, -size)             // base 3
+  ];
+
+  objects.forEach((obj, i) => {
+    const target = new THREE.Object3D();
+    const v = vertices[i % 4];
+
+    // spread slightly around each vertex
+    target.position.set(
+      v.x + (Math.random() - 0.5) * 200,
+      v.y + (Math.random() - 0.5) * 200,
+      v.z + (Math.random() - 0.5) * 200
+    );
+
+    targets.pyramid.push(target);
+  });
+}
+
+
