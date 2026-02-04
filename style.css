@@ -5,7 +5,7 @@ body {
   overflow: hidden;
 }
 
-/* LOGIN (Image A) */
+/* LOGIN */
 #login-screen {
   height: 100vh;
   display: flex;
@@ -17,6 +17,7 @@ body {
 
 #login-screen h1 {
   margin-bottom: 20px;
+  font-size: clamp(22px, 4vw, 32px);
 }
 
 /* THREE CONTAINER */
@@ -28,10 +29,10 @@ body {
   height: 100%;
 }
 
-/* TILE (Periodic Table Style) */
+/* TILE CARD */
 .element {
-  width: 160px;
-  height: 220px;
+  width: clamp(110px, 12vw, 160px);
+  height: clamp(150px, 16vw, 220px);
   background: rgba(0, 160, 160, 0.85);
   box-shadow:
     0 0 20px rgba(0,255,255,0.35),
@@ -40,91 +41,35 @@ body {
   position: relative;
   text-align: center;
   color: #eaffff;
-  font-family: Arial, sans-serif;
+  border-radius: 8px;
 }
 
-.element img {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  margin-top: 12px;
-  object-fit: cover;
-}
-
-.element h3 {
-  margin: 10px 0 4px;
-  font-size: 14px;
-  font-weight: bold;
-}
-
-.element p {
-  font-size: 12px;
-  margin: 0;
-  opacity: 0.85;
-}
-
+/* NUMBER */
 .number {
   position: absolute;
-  top: 8px;
-  right: 10px;
-  font-size: 14px;
+  top: 6px;
+  right: 8px;
+  font-size: clamp(12px, 1.4vw, 14px);
   opacity: 0.8;
 }
 
-
-/* MENU */
-/* UI BAR FIXED BOTTOM */
-#ui-bar {
-  position: fixed;
-  bottom: 25px;
-  left: 0;
-  width: 100%;
-  height: auto;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  pointer-events: none; /* clicks pass through except buttons */
-  z-index: 30;
-}
-
-
-/* BUTTON GROUP */
-#menu {
-  display: flex;
-  gap: 12px;
-  pointer-events: auto; /* enable clicks */
-}
-
-
-#menu button {
-  padding: 8px 16px;
-  background: transparent;
-  color: #6ff;
-  border: 1px solid rgba(127,255,255,0.6);
-  cursor: pointer;
-}
-
-#menu button:hover {
-  background: rgba(0,255,255,0.15);
-}
-
+/* PHOTO */
 .photo {
-  margin-top: 28px;
+  margin-top: 26px;
 }
 
 .photo img {
-  width: 80px;
-  height: 80px;
+  width: clamp(50px, 6vw, 80px);
+  height: clamp(50px, 6vw, 80px);
   border-radius: 50%;
   border: 3px solid rgba(255,255,255,0.65);
   object-fit: cover;
 }
 
+/* META INFO */
 .meta {
-  margin-top: 10px;
-  font-size: 13px;
+  margin-top: 8px;
+  font-size: clamp(11px, 1.2vw, 13px);
 }
 
 .age-country {
@@ -138,42 +83,70 @@ body {
 }
 
 .networth {
-  font-size: 12px;
+  font-size: clamp(10px, 1.1vw, 12px);
   color: #b8fff4;
 }
 
-/* NET WORTH Indicator */
+/* UI BAR */
+#ui-bar {
+  position: fixed;
+  bottom: clamp(10px, 3vw, 25px);
+  left: -60px; 
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 30;
+}
+
+
+/* BUTTON MENU */
+#menu {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  pointer-events: auto;
+}
+
+#menu button {
+  padding: 6px 14px;
+  background: transparent;
+  color: #6ff;
+  border: 1px solid rgba(127,255,255,0.6);
+  cursor: pointer;
+  font-size: clamp(12px, 1.2vw, 14px);
+  border-radius: 4px;
+  transition: 0.2s;
+}
+
+#menu button:hover {
+  background: rgba(0,255,255,0.15);
+}
+
+/* LEGEND */
 #legend {
   position: fixed;
-  right: 40px;
-  bottom: 28px;
-
+  right: clamp(10px, 3vw, 40px);
+  bottom: clamp(10px, 3vw, 28px);
   display: flex;
   align-items: center;
   gap: 10px;
-
-  font-size: 14px;
+  font-size: clamp(11px, 1.2vw, 14px);
   color: #6ff;
   white-space: nowrap;
 }
 
 .gradient-rect {
-  width: 180px;
-  height: 12px;
-
-  background: linear-gradient(
-    to right,
-    #EF3022,
-    #FDCA35,
-    #3A9F48
-  );
-
-  border-radius: 0;
+  width: clamp(120px, 20vw, 180px);
+  height: 10px;
+  background: linear-gradient(to right, #EF3022, #FDCA35, #3A9F48);
 }
 
 .legend-text {
   opacity: 0.9;
-  color:#9ff;
+  color: #9ff;
 }
 
 #legend .label {
@@ -183,4 +156,20 @@ body {
 #legend .value {
   color: #9ff;
   font-weight: bold;
+}
+
+/* 📱 MOBILE OPTIMIZATION */
+@media (max-width: 600px) {
+  #legend {
+    left: 50%;
+    transform: translateX(-50%);
+    right: auto;
+    bottom: 70px;
+  }
+
+  .element {
+    box-shadow:
+      0 0 12px rgba(0,255,255,0.25),
+      inset 0 0 6px rgba(0,255,255,0.15);
+  }
 }

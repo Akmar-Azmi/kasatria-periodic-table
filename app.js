@@ -160,11 +160,17 @@ function createLayouts() {
   createPyramid();
 }
 
-window.addEventListener("resize", () => {
+function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
+
+  camera.position.z = window.innerWidth < 600 ? 4200 : 3000;
+
   renderer.setSize(window.innerWidth, window.innerHeight);
-});
+}
+
+window.addEventListener("resize", onWindowResize);
+
 
 /* TABLE 20 x 10 (IMAGE B) */
 function createTable() {
@@ -349,7 +355,6 @@ function transform(targetArray, duration = 2000) {
       .start();
   });
 }
-
 
 function animate() {
   requestAnimationFrame(animate);
